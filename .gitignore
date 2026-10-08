@@ -1,0 +1,15 @@
+# Maven build output
+/target/
+
+# Generated Allure HTML report
+/allure-report/
+
+# Selenide generated artifacts
+/build/
+
+# IDE-specific files
+/.idea/
+*.iml
+
+# Local environment files / secrets
+.env
