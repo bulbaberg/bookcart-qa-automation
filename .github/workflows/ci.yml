@@ -14,20 +14,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download repository
+      - name: Скачиваем репозиторий проекта BookCartTest
         uses: actions/checkout@v7
-      - name: Download BookCart
+      - name: Скачиваем проект BookCart из репозитория AnkitSharma-007
         uses: actions/checkout@v7
         with:
           repository: AnkitSharma-007/BookCart
           path: bookcart-app
-      - name: Check BookCart sources
+      - name: Проверяем ресурсы BookCart
         run: ls -l bookcart-app/BookCart/BookCart.csproj
-      - name: Setup Java
+      - name: Устанавливаем .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '9.0.x'
+      - name: Запускаем сборку backend-а
+        run: dotnet build bookcart-app/BookCart/BookCart.csproj
+      - name: Устанавливаем Java
         uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '21'
 
-      - name: Compile tests
+      - name: Проверка компиляции тестов
         run: mvn test-compile
