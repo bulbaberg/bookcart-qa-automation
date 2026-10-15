@@ -16,7 +16,13 @@ jobs:
     steps:
       - name: Download repository
         uses: actions/checkout@v7
-
+      - name: Download BookCart
+        uses: actions/checkout@v7
+        with:
+          repository: AnkitSharma-007/BookCart
+          path: bookcart-app
+      - name: Check BookCart sources
+        run: ls -l bookcart-app/BookCart/BookCart.csproj
       - name: Setup Java
         uses: actions/setup-java@v6
         with:
