@@ -28,7 +28,7 @@ jobs:
         with:
           dotnet-version: '9.0.x'
       - name: Запускаем сборку backend-а
-        run: dotnet build bookcart-app/BookCart/BookCart.csproj
+        run: dotnet build bookcart-app/BookCart/BookCart.csproj --configuration Release
       - name: Устанавливаем Java
         uses: actions/setup-java@v6
         with:
