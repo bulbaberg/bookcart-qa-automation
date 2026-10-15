@@ -1,0 +1,8 @@
+CREATE DATABASE BookCartDB;
+GO
+
+USE BookCartDB;
+GO
+
+SELECT DB_NAME() AS CurrentDatabase;
+GO
