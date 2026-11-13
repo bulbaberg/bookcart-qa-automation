@@ -26,8 +26,30 @@ jobs:
     steps:
       - name: Проверка контейнера SQL Server
         run: docker ps -a
+      - name: Проверка подключения к SQL Server
+        run: |
+          for attempt in {1..15}; do
+            if docker exec "${{ job.services.sqlserver.id }}" bash -c \
+              'SQLCMDPASSWORD="$MSSQL_SA_PASSWORD" /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -b -l 3 -Q "SELECT 1"'; then
+              echo "SQL Server готов"
+              exit 0
+            fi
+            echo "SQL Server ещё запускается, попытка $attempt"
+            sleep 5
+          done
+          echo "SQL Server не стал доступен"
+          exit 1
       - name: Скачиваем репозиторий проекта BookCartTest
         uses: actions/checkout@v7
+      - name: Создание и заполнение BookCartDB
+        run: |
+          docker exec -i "${{ job.services.sqlserver.id }}" bash -c 'SQLCMDPASSWORD="$MSSQL_SA_PASSWORD" /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -b -d master' < ci/sql/01-create-database.sql
+          docker exec -i "${{ job.services.sqlserver.id }}" bash -c 'SQLCMDPASSWORD="$MSSQL_SA_PASSWORD" /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -b -d BookCartDB' < ci/sql/02-create-tables.sql
+          docker exec -i "${{ job.services.sqlserver.id }}" bash -c 'SQLCMDPASSWORD="$MSSQL_SA_PASSWORD" /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -b -d BookCartDB' < ci/sql/03-seed-data.sql
+      - name: Проверяем созданную BookCartDB
+        run: |
+          docker exec "${{ job.services.sqlserver.id }}" bash -c \
+            'SQLCMDPASSWORD="$MSSQL_SA_PASSWORD" /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -b -d BookCartDB -Q "SELECT DB_NAME() AS DatabaseName; SELECT COUNT(*) AS TableCount FROM sys.tables; SELECT COUNT(*) AS UserCount FROM dbo.UserMaster;"'
       - name: Скачиваем проект BookCart из репозитория AnkitSharma-007
         uses: actions/checkout@v7
         with:
